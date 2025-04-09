@@ -1,5 +1,5 @@
 import type React from "react"
-import { ManagerSidebar } from "@/components/manager-sidebar"
+import { ManagerSidebarContainer } from "@/components/manager-sidebar"
 
 export default function ManagerLayout({
   children,
@@ -7,9 +7,10 @@ export default function ManagerLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex h-screen bg-pink-50">
-      <ManagerSidebar />
-      <div className="flex-1 p-8 overflow-y-auto">{children}</div>
+    <div className="h-screen w-full bg-pink-50">
+      <ManagerSidebarContainer>
+        {children}
+      </ManagerSidebarContainer>
     </div>
   )
 }

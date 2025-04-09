@@ -1,5 +1,5 @@
 import type React from "react"
-import { AdminSidebar } from "@/components/admin-sidebar"
+import { AdminSidebarContainer } from "@/components/admin-sidebar"
 
 export default function AdminLayout({
   children,
@@ -7,9 +7,10 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex h-screen bg-pink-50">
-      <AdminSidebar />
-      <div className="flex-1 p-8 overflow-y-auto">{children}</div>
+    <div className="h-screen w-full bg-pink-50">
+      <AdminSidebarContainer>
+        {children}
+      </AdminSidebarContainer>
     </div>
   )
 }

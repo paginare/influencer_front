@@ -2,15 +2,23 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { BarChart3, Heart, LogOut, Percent, Settings, Users, LineChart } from "lucide-react"
+import { BarChart3, Heart, LogOut, Percent, Settings, Users, LineChart, Menu } from "lucide-react"
 import { useState, useEffect } from "react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { logout, getCurrentUser } from "@/app/actions/auth"
+import { 
+  Sidebar, 
+  SidebarContent, 
+  SidebarFooter,
+  SidebarHeader,
+  SidebarProvider,
+  SidebarTrigger
+} from "@/components/ui/sidebar"
 
-export function AdminSidebar() {
+export function AdminSidebarContent() {
   const pathname = usePathname()
   const router = useRouter()
   const [user, setUser] = useState<{ name: string; email: string; role: string; id: string } | null>(null)
@@ -79,17 +87,17 @@ export function AdminSidebar() {
   ]
 
   return (
-    <div className="flex flex-col h-screen w-64 bg-white border-r border-pink-100 shadow-sm">
-      <div className="flex h-16 items-center border-b border-pink-100 px-6">
+    <>
+      <SidebarHeader className="flex h-16 items-center border-b border-pink-100 px-6">
         <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold text-pink-700">
           <div className="bg-pink-100 p-1.5 rounded-md">
             <Heart className="h-5 w-5" />
           </div>
           <span>Admin Panel</span>
         </Link>
-      </div>
+      </SidebarHeader>
 
-      <div className="flex-1 py-6 overflow-y-auto">
+      <SidebarContent className="py-6 overflow-y-auto">
         <nav className="grid gap-1.5 px-3">
           {routes.map((route) => (
             <Link
@@ -109,9 +117,9 @@ export function AdminSidebar() {
             </Link>
           ))}
         </nav>
-      </div>
+      </SidebarContent>
 
-      <div className="p-4 border-t border-pink-100">
+      <SidebarFooter className="p-4 border-t border-pink-100">
         <div className="flex items-center gap-3 mb-4 px-2">
           <Avatar className="h-10 w-10 border-2 border-pink-100">
             <AvatarImage src="/placeholder-user.jpg" alt={user?.name || "Admin"} />
@@ -139,7 +147,51 @@ export function AdminSidebar() {
           <LogOut className="mr-2 h-4 w-4" />
           Sair
         </Button>
-      </div>
+      </SidebarFooter>
+    </>
+  )
+}
+
+export function AdminSidebar() {
+  return (
+    <Sidebar className="bg-white border-r border-pink-100 shadow-sm">
+      <AdminSidebarContent />
+    </Sidebar>
+  )
+}
+
+export function AdminSidebarMobile() {
+  return (
+    <div className="flex md:hidden items-center p-2">
+      <SidebarTrigger className="bg-white hover:bg-pink-50">
+        <Menu className="h-6 w-6 text-pink-700" />
+      </SidebarTrigger>
     </div>
+  )
+}
+
+export function AdminSidebarContainer({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <div className="flex h-full">
+        <AdminSidebar />
+        <div className="flex flex-col flex-1 w-full">
+          <div className="flex items-center h-16 px-4 border-b border-pink-100 md:hidden bg-white">
+            <AdminSidebarMobile />
+            <div className="flex-1 flex justify-center">
+              <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold text-pink-700">
+                <div className="bg-pink-100 p-1.5 rounded-md">
+                  <Heart className="h-5 w-5" />
+                </div>
+                <span>Admin Panel</span>
+              </Link>
+            </div>
+          </div>
+          <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-pink-50 w-full">
+            {children}
+          </div>
+        </div>
+      </div>
+    </SidebarProvider>
   )
 }

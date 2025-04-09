@@ -39,7 +39,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
  */
 export async function createCommissionTier(tierData: CommissionTier): Promise<{ success: boolean; message?: string; tier?: CommissionTier }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -85,7 +85,7 @@ export async function createCommissionTier(tierData: CommissionTier): Promise<{ 
  */
 export async function getCommissionTiers(appliesTo?: 'influencer' | 'manager', isActive?: boolean): Promise<{ success: boolean; message?: string; tiers?: CommissionTier[] }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -133,7 +133,7 @@ export async function getCommissionTiers(appliesTo?: 'influencer' | 'manager', i
  */
 export async function updateCommissionTier(id: string, tierData: Partial<CommissionTier>): Promise<{ success: boolean; message?: string; tier?: CommissionTier }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -179,7 +179,7 @@ export async function updateCommissionTier(id: string, tierData: Partial<Commiss
  */
 export async function deleteCommissionTier(id: string): Promise<{ success: boolean; message?: string }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -223,7 +223,7 @@ export async function deleteCommissionTier(id: string): Promise<{ success: boole
  */
 export async function getSales(filters: SaleFilters = {}): Promise<{ success: boolean; message?: string; sales?: any; pagination?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -276,11 +276,11 @@ export async function getSales(filters: SaleFilters = {}): Promise<{ success: bo
 }
 
 /**
- * Processa comissões pendentes (admin)
+ * Processa comissões para vendas sem comissão calculada
  */
 export async function processCommissions(): Promise<{ success: boolean; message?: string; result?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -289,7 +289,7 @@ export async function processCommissions(): Promise<{ success: boolean; message?
       };
     }
     
-    const response = await fetch(`${API_URL}/api/commissions/process-pending`, {
+    const response = await fetch(`${API_URL}/api/commissions/process`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -308,8 +308,7 @@ export async function processCommissions(): Promise<{ success: boolean; message?
 
     return {
       success: true,
-      message: data.message,
-      result: data
+      result: data,
     };
   } catch (error) {
     console.error('Erro ao processar comissões:', error);
@@ -321,11 +320,11 @@ export async function processCommissions(): Promise<{ success: boolean; message?
 }
 
 /**
- * Gera pagamentos para um período específico (admin)
+ * Gera pagamentos para comissões dentro do período
  */
 export async function generatePayments(startDate: string, endDate: string): Promise<{ success: boolean; message?: string; result?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -355,8 +354,7 @@ export async function generatePayments(startDate: string, endDate: string): Prom
 
     return {
       success: true,
-      message: data.message,
-      result: data
+      result: data,
     };
   } catch (error) {
     console.error('Erro ao gerar pagamentos:', error);
@@ -372,7 +370,7 @@ export async function generatePayments(startDate: string, endDate: string): Prom
  */
 export async function getCommissionPayments(filters: PaymentFilters = {}): Promise<{ success: boolean; message?: string; payments?: any; pagination?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -409,11 +407,7 @@ export async function getCommissionPayments(filters: PaymentFilters = {}): Promi
     return {
       success: true,
       payments: data.payments,
-      pagination: {
-        page: data.page,
-        pages: data.pages,
-        total: data.total
-      }
+      pagination: data.pagination,
     };
   } catch (error) {
     console.error('Erro ao obter pagamentos:', error);
@@ -425,11 +419,11 @@ export async function getCommissionPayments(filters: PaymentFilters = {}): Promi
 }
 
 /**
- * Atualiza o status de um pagamento (admin)
+ * Atualiza o status de um pagamento
  */
 export async function updatePaymentStatus(id: string, status: 'pending' | 'paid' | 'failed', transactionId?: string): Promise<{ success: boolean; message?: string; payment?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -438,7 +432,7 @@ export async function updatePaymentStatus(id: string, status: 'pending' | 'paid'
       };
     }
     
-    const response = await fetch(`${API_URL}/api/commissions/payments/${id}`, {
+    const response = await fetch(`${API_URL}/api/commissions/payments/${id}/status`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -459,7 +453,7 @@ export async function updatePaymentStatus(id: string, status: 'pending' | 'paid'
 
     return {
       success: true,
-      payment: data
+      payment: data,
     };
   } catch (error) {
     console.error('Erro ao atualizar status do pagamento:', error);
@@ -471,62 +465,53 @@ export async function updatePaymentStatus(id: string, status: 'pending' | 'paid'
 }
 
 /**
- * Salva (substitui) todas as faixas de comissão para um tipo específico.
+ * Salva múltiplas faixas de comissão de uma vez (para influencer ou manager)
  */
 export async function saveCommissionTiersBulk(appliesTo: 'influencer' | 'manager', tiers: Array<Partial<CommissionTier>>): Promise<{ success: boolean; message?: string; tiers?: CommissionTier[] }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
+    
     if (!token) {
-      return { success: false, message: 'Não autorizado' };
+      return {
+        success: false,
+        message: 'Não autorizado. Faça login novamente.',
+      };
     }
-
-    // Validar e limpar os tiers antes de enviar
-    const validatedTiers = tiers.map(tier => ({
-        // Certificar que os valores numéricos são números
-        minSalesValue: Number(tier.minSalesValue) || 0, 
-        maxSalesValue: tier.maxSalesValue ? Number(tier.maxSalesValue) : undefined,
-        commissionPercentage: Number(tier.commissionPercentage) || 0,
-        // Remover campos que não devem ser enviados (como _id)
-        // O backend irá definir appliesTo e isActive
-    })).filter(tier => 
-        // Remover tiers inválidos (ex: sem min ou rate)
-        tier.minSalesValue !== undefined && tier.commissionPercentage !== undefined
-    );
-
-    // Verificar se max é maior que min
-    for (let i = 0; i < validatedTiers.length; i++) {
-        const tier = validatedTiers[i];
-        if (tier.maxSalesValue !== undefined && tier.maxSalesValue <= tier.minSalesValue) {
-             return { success: false, message: `Erro na faixa ${i + 1}: Valor máximo (${tier.maxSalesValue}) deve ser maior que o mínimo (${tier.minSalesValue}).` };
-        }
-        // Verificar sobreposição ou lacunas (mais complexo, pode ser feito no backend)
-    }
-
-    const body = {
-      appliesTo,
-      tiers: validatedTiers
-    };
-
+    
+    // Formatar dados para a API
+    const formattedTiers = tiers.map(tier => ({
+      ...tier,
+      appliesTo  // Adicionar o tipo (influencer/manager) a cada faixa
+    }));
+    
     const response = await fetch(`${API_URL}/api/commissions/tiers/bulk`, {
-      method: 'PUT',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ tiers: formattedTiers }),
       cache: 'no-store',
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'Falha ao salvar faixas de comissão' };
+      return {
+        success: false,
+        message: data.message || 'Falha ao salvar faixas de comissão',
+      };
     }
 
-    return { success: true, tiers: data };
-
+    return {
+      success: true,
+      tiers: data,
+    };
   } catch (error) {
     console.error('Erro ao salvar faixas de comissão:', error);
-    return { success: false, message: 'Erro ao conectar com o servidor' };
+    return {
+      success: false,
+      message: 'Erro ao conectar com o servidor',
+    };
   }
 } 

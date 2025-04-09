@@ -10,7 +10,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
  */
 export async function getAdminDashboardStats(): Promise<{ success: boolean; message?: string; stats?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -53,7 +53,7 @@ export async function getAdminDashboardStats(): Promise<{ success: boolean; mess
  */
 export async function getManagerDashboardStats(): Promise<{ success: boolean; message?: string; stats?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -96,7 +96,7 @@ export async function getManagerDashboardStats(): Promise<{ success: boolean; me
  */
 export async function getInfluencerDashboardStats(): Promise<{ success: boolean; message?: string; stats?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -139,7 +139,7 @@ export async function getInfluencerDashboardStats(): Promise<{ success: boolean;
  */
 export async function getSalesChart(period: 'week' | 'month' | 'year', userId?: string): Promise<{ success: boolean; message?: string; data?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -188,7 +188,7 @@ export async function getSalesChart(period: 'week' | 'month' | 'year', userId?: 
 export async function getInfluencerRanking(limit: number = 10, period: 'month' | 'year' | 'all' = 'month'): Promise<{ success: boolean; message?: string; ranking?: any[] }> {
   try {
     console.log(`[getInfluencerRanking] Solicitando ranking com limit=${limit}, period=${period}`);
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       console.error('[getInfluencerRanking] Token não encontrado');
@@ -253,7 +253,7 @@ export async function getInfluencerRanking(limit: number = 10, period: 'month' |
  */
 export async function getPendingCommissionsSummary(): Promise<{ success: boolean; message?: string; summary?: any[] }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -297,7 +297,7 @@ export async function getPendingCommissionsSummary(): Promise<{ success: boolean
 export async function getManagerRanking(limit: number = 10, period: 'month' | 'year' | 'all' = 'month'): Promise<{ success: boolean; message?: string; ranking?: any[] }> {
   try {
     console.log(`[getManagerRanking] Solicitando ranking com limit=${limit}, period=${period}`);
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       console.error('[getManagerRanking] Token não encontrado');
@@ -365,7 +365,7 @@ export async function getPerformanceOverviewStats(
     userType: 'all' | 'manager' | 'influencer' = 'all'
 ): Promise<{ success: boolean; message?: string; stats?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     if (!token) {
       return { success: false, message: 'Não autorizado' };
     }
@@ -404,7 +404,7 @@ export async function getPerformanceTimeline(
     period: 'year' | 'all' = 'year' // Example: defaulting to year, adjust as needed
 ): Promise<{ success: boolean; message?: string; data?: any[] }> {
     try {
-        const token = getAuthToken();
+        const token = await getAuthToken();
         if (!token) {
             return { success: false, message: 'Não autorizado' };
         }

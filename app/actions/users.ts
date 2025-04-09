@@ -63,7 +63,7 @@ export type MessageType = 'welcome' | 'report' | 'reminder';
  */
 export async function getUsers(filters: UserFilters = {}): Promise<{ success: boolean; message?: string; users?: User[]; total?: number; pages?: number }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     if (!token) {
       return { success: false, message: 'Não autorizado' };
     }
@@ -100,7 +100,7 @@ export async function getUsers(filters: UserFilters = {}): Promise<{ success: bo
  */
 export async function createUser(userData: Omit<User, '_id' | 'createdAt'>): Promise<{ success: boolean; message?: string; user?: User }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     if (!token) {
       return { success: false, message: 'Não autorizado' };
     }
@@ -134,7 +134,7 @@ export async function createUser(userData: Omit<User, '_id' | 'createdAt'>): Pro
  */
 export async function updateUser(userId: string, userData: Partial<Omit<User, '_id' | 'createdAt'>>): Promise<{ success: boolean; message?: string; user?: User }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     if (!token) {
       return { success: false, message: 'Não autorizado' };
     }
@@ -167,7 +167,7 @@ export async function updateUser(userId: string, userData: Partial<Omit<User, '_
  */
 export async function deleteUser(userId: string): Promise<{ success: boolean; message?: string }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     if (!token) {
       return { success: false, message: 'Não autorizado' };
     }
@@ -204,7 +204,7 @@ export async function deleteUser(userId: string): Promise<{ success: boolean; me
  */
 export async function getUserById(userId: string): Promise<{ success: boolean; message?: string; user?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -247,7 +247,7 @@ export async function getUserById(userId: string): Promise<{ success: boolean; m
  */
 export async function getManagers(): Promise<{ success: boolean; message?: string; managers?: any[] }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -290,7 +290,7 @@ export async function getManagers(): Promise<{ success: boolean; message?: strin
  */
 export async function createManager(managerData: any): Promise<{ success: boolean; message?: string; manager?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -342,7 +342,7 @@ export async function createManager(managerData: any): Promise<{ success: boolea
  */
 export async function createInfluencer(influencerData: any): Promise<{ success: boolean; message?: string; influencer?: any }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -394,7 +394,7 @@ export async function createInfluencer(influencerData: any): Promise<{ success: 
  */
 export async function deactivateUser(userId: string): Promise<{ success: boolean; message?: string }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -438,7 +438,7 @@ export async function deactivateUser(userId: string): Promise<{ success: boolean
  */
 export async function getManagerInfluencers(managerId: string): Promise<{ success: boolean; message?: string; influencers?: any[] }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -481,7 +481,7 @@ export async function getManagerInfluencers(managerId: string): Promise<{ succes
  */
 export async function checkCouponAvailability(couponCode: string): Promise<{ success: boolean; message?: string; available?: boolean }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     
     if (!token) {
       return {
@@ -647,7 +647,7 @@ export async function updateProfile(data: { name: string; email: string }): Prom
  */
 export async function getUserSettings(): Promise<{ success: boolean; message?: string; settings?: UserNotificationSettings }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     if (!token) {
       return { success: false, message: 'Não autorizado' };
     }
@@ -679,7 +679,7 @@ export async function getUserSettings(): Promise<{ success: boolean; message?: s
  */
 export async function updateUserSettings(settings: Partial<UserNotificationSettings>): Promise<{ success: boolean; message?: string; settings?: UserNotificationSettings }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     if (!token) {
       return { success: false, message: 'Não autorizado' };
     }
@@ -717,7 +717,7 @@ export async function updateMessageTemplate(
   content: string
 ): Promise<{ success: boolean; message?: string; updatedTemplate?: { type: MessageType; content: string } }> {
   try {
-    const token = getAuthToken();
+    const token = await getAuthToken();
     if (!token) {
       return { success: false, message: 'Não autorizado' };
     }

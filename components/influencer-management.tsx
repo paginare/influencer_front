@@ -17,6 +17,7 @@ import {
   Bell,
   MessageSquare,
   Users,
+  Ticket,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -59,6 +60,7 @@ import {
 } from "@/app/actions/manager"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CouponManagementModal } from "@/components/coupon-management-modal"
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -72,9 +74,6 @@ const formSchema = z.object({
   }),
   instagram: z.string().min(3, {
     message: "Por favor, insira um usuário do Instagram válido.",
-  }),
-  coupon: z.string().min(3, {
-    message: "O cupom deve ter pelo menos 3 caracteres.",
   }),
 })
 
@@ -167,15 +166,14 @@ export function InfluencerManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [influencerToDelete, setInfluencerToDelete] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
-  const [copiedCoupon, setCopiedCoupon] = useState<string | null>(null)
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false)
   const [selectedInfluencer, setSelectedInfluencer] = useState<InfluencerWithNotifications | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [influencerToEdit, setInfluencerToEdit] = useState<InfluencerWithNotifications | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [validatingCoupon, setValidatingCoupon] = useState(false)
-  const [checkedCoupon, setCheckedCoupon] = useState<{ value: string; available: boolean } | null>(null)
+  const [couponModalOpen, setCouponModalOpen] = useState(false)
+  const [selectedInfluencerForCoupons, setSelectedInfluencerForCoupons] = useState<InfluencerWithNotifications | null>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -184,15 +182,8 @@ export function InfluencerManagement() {
       email: "",
       phone: "",
       instagram: "",
-      coupon: "",
     },
   })
-
-  // Resetar checkedCoupon quando o valor do cupom mudar
-  const couponValue = form.watch('coupon');
-  useEffect(() => {
-    setCheckedCoupon(null);
-  }, [couponValue]);
 
   // Resetar checkedCoupon quando o modal abrir/fechar ou form for resetado
   // (Será adicionado nos onOpenChange e resets)
@@ -231,7 +222,6 @@ export function InfluencerManagement() {
       email: influencer.email,
       phone: influencer.phone || "",
       instagram: influencer.instagram || "",
-      coupon: influencer.coupon,
     })
     setEditDialogOpen(true)
   }
@@ -247,7 +237,6 @@ export function InfluencerManagement() {
           email: values.email,
           phone: values.phone,
           instagram: values.instagram,
-          coupon: values.coupon,
         })
 
         if (result.success) {
@@ -280,19 +269,17 @@ export function InfluencerManagement() {
           name: values.name,
           email: values.email,
           whatsappNumber: values.phone,
-          coupon: values.coupon,
         }); 
         const result = await createInfluencer({
           name: values.name,
           email: values.email,
           whatsappNumber: values.phone, 
-          coupon: values.coupon,
         })
 
         if (result.success && result.influencer) {
           toast({
             title: "Influencer criado com sucesso",
-            description: `${values.name} foi adicionado como influencer com o cupom ${values.coupon}.`,
+            description: `${values.name} foi adicionado como influencer.`,
           })
 
           // Adiciona o novo influencer à lista
@@ -317,7 +304,6 @@ export function InfluencerManagement() {
       form.reset()
       setIsSubmitting(false)
       setInfluencerToEdit(null)
-      setCheckedCoupon(null);
     }
   }
 
@@ -326,8 +312,7 @@ export function InfluencerManagement() {
     const matchesSearch =
       influencer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       influencer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (influencer.instagram && influencer.instagram.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      influencer.coupon.toLowerCase().includes(searchQuery.toLowerCase())
+      (influencer.instagram && influencer.instagram.toLowerCase().includes(searchQuery.toLowerCase()))
 
     // Filter by tab
     if (activeTab === "all") return matchesSearch
@@ -374,19 +359,6 @@ export function InfluencerManagement() {
       setDeleteDialogOpen(false)
       setInfluencerToDelete(null)
     }
-  }
-
-  const handleCopyCoupon = (coupon: string) => {
-    navigator.clipboard.writeText(coupon)
-    setCopiedCoupon(coupon)
-    setTimeout(() => {
-      setCopiedCoupon(null)
-    }, 2000)
-
-    toast({
-      title: "Cupom copiado",
-      description: `O cupom ${coupon} foi copiado para a área de transferência.`,
-    })
   }
 
   const openNotificationSettings = (influencer: InfluencerWithNotifications) => {
@@ -438,26 +410,9 @@ export function InfluencerManagement() {
     // O estado de 'isSaving' é tratado dentro de NotificationSettings
   }
 
-  const handleCheckCoupon = async (coupon: string) => {
-    console.log("handleCheckCoupon FOI CHAMADO com:", coupon);
-    setValidatingCoupon(true)
-    const couponResult = await checkCouponAvailability(coupon)
-    setValidatingCoupon(false)
-    
-    if (couponResult.success && couponResult.available) {
-      setCheckedCoupon({ value: coupon, available: true })
-      toast({
-        title: "Cupom disponível",
-        description: "Este cupom está disponível para uso.",
-      })
-    } else {
-      setCheckedCoupon({ value: coupon, available: false })
-      toast({
-        title: "Cupom indisponível",
-        description: "Este cupom não está disponível para uso.",
-        variant: "destructive",
-      })
-    }
+  const openCouponManagement = (influencer: InfluencerWithNotifications) => {
+    setSelectedInfluencerForCoupons(influencer)
+    setCouponModalOpen(true)
   }
 
   return (
@@ -499,7 +454,7 @@ export function InfluencerManagement() {
               <DropdownMenuItem>Mais antigos</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) setCheckedCoupon(null); }}>
+          <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); }}>
             <DialogTrigger asChild>
               <Button className="bg-pink-600 hover:bg-pink-700 shadow-md">
                 <Plus className="mr-2 h-4 w-4" />
@@ -568,45 +523,11 @@ export function InfluencerManagement() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="coupon"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cupom</FormLabel>
-                        <div className="flex items-center gap-2">
-                           <FormControl>
-                             <Input {...field} className="border-pink-100" />
-                           </FormControl>
-                           <Button 
-                              type="button" 
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleCheckCoupon(field.value)}
-                              disabled={!field.value || validatingCoupon}
-                              className="whitespace-nowrap border-pink-200 text-pink-700 hover:bg-pink-50"
-                           >
-                             {validatingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verificar"}
-                           </Button>
-                        </div>
-                        <FormDescription>
-                          {checkedCoupon && checkedCoupon.value === field.value ? (
-                            <span className={checkedCoupon.available ? 'text-green-600' : 'text-red-600'}>
-                              {checkedCoupon.available ? 'Cupom disponível!' : 'Cupom indisponível.'}
-                            </span>
-                          ) : (
-                            'Código único para vendas.'
-                          )}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <DialogFooter>
                     <Button 
                       type="submit" 
                       className="bg-pink-600 hover:bg-pink-700" 
-                      disabled={isSubmitting || !checkedCoupon?.available || checkedCoupon?.value !== couponValue}
+                      disabled={isSubmitting}
                     >
                       {isSubmitting ? (
                         <>
@@ -649,7 +570,6 @@ export function InfluencerManagement() {
                 <TableRow>
                   <TableHead>Influencer</TableHead>
                   <TableHead>Instagram</TableHead>
-                  <TableHead>Cupom</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Vendas</TableHead>
                   <TableHead>Notificações</TableHead>
@@ -689,23 +609,6 @@ export function InfluencerManagement() {
                        )}
                     </TableCell>
                     <TableCell>
-                       <div className="flex items-center">
-                         <Badge className="bg-pink-100 text-pink-800 mr-2 text-xs">{influencer.coupon}</Badge>
-                         <Button
-                           variant="ghost"
-                           size="icon"
-                           className="h-6 w-6 rounded-full hover:bg-pink-100"
-                           onClick={() => handleCopyCoupon(influencer.coupon)}
-                         >
-                           {copiedCoupon === influencer.coupon ? (
-                             <Check className="h-3 w-3 text-green-600" />
-                           ) : (
-                             <Copy className="h-3 w-3 text-gray-500" />
-                           )}
-                         </Button>
-                       </div>
-                    </TableCell>
-                    <TableCell>
                        <span
                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${ influencer.status === "Ativo" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800" }`}
                        >
@@ -738,6 +641,14 @@ export function InfluencerManagement() {
                        </Button>
                     </TableCell>
                     <TableCell className="text-right">
+                       <Button
+                         variant="ghost"
+                         size="icon"
+                         className="h-8 w-8 text-gray-500 hover:text-blue-700"
+                         onClick={() => openCouponManagement(influencer)}
+                       >
+                         <Ticket className="h-4 w-4" />
+                       </Button>
                        <Button
                          variant="ghost"
                          size="icon"
@@ -801,7 +712,7 @@ export function InfluencerManagement() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={editDialogOpen} onOpenChange={(isOpen) => { setEditDialogOpen(isOpen); if (!isOpen) setCheckedCoupon(null); }}>
+      <Dialog open={editDialogOpen} onOpenChange={(isOpen) => { setEditDialogOpen(isOpen); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar Influencer</DialogTitle>
@@ -864,48 +775,11 @@ export function InfluencerManagement() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="coupon"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cupom</FormLabel>
-                     <div className="flex items-center gap-2">
-                        <FormControl>
-                          <Input {...field} className="border-pink-100" />
-                        </FormControl>
-                        <Button 
-                           type="button" 
-                           variant="outline"
-                           size="sm"
-                           onClick={() => handleCheckCoupon(field.value)}
-                           disabled={!field.value || validatingCoupon || field.value === influencerToEdit?.coupon}
-                           className="whitespace-nowrap border-pink-200 text-pink-700 hover:bg-pink-50"
-                        >
-                          {validatingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verificar"}
-                        </Button>
-                     </div>
-                     <FormDescription>
-                       {checkedCoupon && checkedCoupon.value === field.value ? (
-                         <span className={checkedCoupon.available ? 'text-green-600' : 'text-red-600'}>
-                           {checkedCoupon.available ? 'Cupom disponível!' : 'Cupom indisponível.'}
-                         </span>
-                       ) : (
-                         influencerToEdit && field.value === influencerToEdit.coupon ? 'Cupom atual.' : 'Verifique a disponibilidade se alterar.'
-                       )}
-                     </FormDescription>
-                     <FormMessage />
-                  </FormItem>
-                )}
-              />
               <DialogFooter>
                 <Button 
                   type="submit" 
                   className="bg-pink-600 hover:bg-pink-700" 
-                  disabled={
-                    isSubmitting || 
-                    (couponValue !== influencerToEdit?.coupon && (!checkedCoupon?.available || checkedCoupon?.value !== couponValue))
-                  }
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <>
@@ -921,6 +795,14 @@ export function InfluencerManagement() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Coupon Management Modal */}
+       <CouponManagementModal 
+        isOpen={couponModalOpen} 
+        onClose={() => setCouponModalOpen(false)} 
+        influencer={selectedInfluencerForCoupons} 
+      />
+
     </div>
   )
 }

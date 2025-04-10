@@ -80,29 +80,33 @@ export function WhatsappConnection() {
       setQrCodeValue(null);
       
       try {
+        // Primeiro verifica se o usuário tem token WhatsApp
         const statusResult = await getConnectionStatus();
         
-        if (statusResult.success && statusResult.hasToken && statusResult.token) {
-          setUserToken(statusResult.token);
-          console.log('Usuário tem token, verificando status detalhado...');
-          
-          const detailedStatusResult = await getDetailedConnectionStatus();
-          
-          if (detailedStatusResult.success && detailedStatusResult.status === 'connected') {
-            console.log('Status detalhado: Conectado!');
-            setConnectionState('connected');
-          } else {
-            console.log(`Status detalhado: ${detailedStatusResult.status || 'Erro'}. Definindo como Desconectado.`);
-            if (!detailedStatusResult.success) {
-                setError(detailedStatusResult.message || "Falha ao verificar status atual da conexão.");
+        if (statusResult.success) {
+          if (statusResult.hasToken && statusResult.token) {
+            // Usuário tem token, podemos prosseguir com a verificação detalhada
+            setUserToken(statusResult.token);
+            console.log('Usuário tem token, verificando status detalhado...');
+            
+            const detailedStatusResult = await getDetailedConnectionStatus();
+            
+            if (detailedStatusResult.success && detailedStatusResult.status === 'connected') {
+              console.log('Status detalhado: Conectado!');
+              setConnectionState('connected');
+            } else {
+              console.log(`Status detalhado: ${detailedStatusResult.status || 'Erro'}. Definindo como Desconectado.`);
+              if (!detailedStatusResult.success) {
+                  setError(detailedStatusResult.message || "Falha ao verificar status atual da conexão.");
+              }
+              setConnectionState('disconnected'); 
             }
-            setConnectionState('disconnected'); 
+          } else {
+            // Usuário não tem token, não precisa fazer mais consultas
+            console.log('Usuário não tem token, estado desconectado.');
+            setUserToken(null);
+            setConnectionState("disconnected");
           }
-          
-        } else if (statusResult.success && !statusResult.hasToken) {
-          console.log('Usuário não tem token, estado desconectado.');
-          setUserToken(null);
-          setConnectionState("disconnected");
         } else {
           console.error('Falha ao buscar status inicial:', statusResult.message);
           setError(statusResult.message || "Falha ao buscar status da conexão.");
@@ -440,11 +444,13 @@ export function WhatsappConnection() {
 
           {connectionState === "disconnected" && (
              <div className="text-center">
-                <p className="text-gray-600 mb-4">
-                  {userToken ? 
-                    'Sua instância está criada, mas precisa reconectar.' : 
-                    'Seu WhatsApp não está conectado.'
-                  }
+                <p className="text-lg font-medium text-red-700 flex items-center justify-center">
+                  <X className="mr-1 h-5 w-5" /> Desconectado
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  {userToken
+                    ? "A conexão com o WhatsApp foi perdida."
+                    : "Você precisa gerar uma conexão para usar o WhatsApp Business API."}
                 </p>
                 <Button 
                   onClick={handleConnectClick} 
@@ -453,10 +459,10 @@ export function WhatsappConnection() {
                 >
                   {isInitiating ? (
                      <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Processando...</>
+                  ) : userToken ? (
+                    <>Reconectar</>
                   ) : (
-                     <> <QrCode className="mr-2 h-4 w-4"/> 
-                       {userToken ? 'Reconectar Agora' : 'Conectar WhatsApp'}
-                     </>
+                    <>Gerar Conexão</>
                   )}
                 </Button>
              </div>

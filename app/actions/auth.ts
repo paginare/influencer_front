@@ -276,4 +276,99 @@ export async function isAuthenticated(): Promise<boolean> {
 export async function getUserRole(): Promise<string | null> {
   const user = await getCurrentUser();
   return user?.role || null;
+}
+
+// --- Password Reset Actions --- 
+
+/**
+ * Solicita um link de redefinição de senha para o email fornecido.
+ */
+export async function requestPasswordResetAction(email: string): Promise<{ success: boolean; message: string }> {
+  console.log(`[SA requestPasswordResetAction] Requesting reset for email: ${email}`);
+  try {
+    const response = await fetch(`${API_URL}/api/auth/request-password-reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+      cache: 'no-store',
+    });
+
+    const data = await response.json();
+
+    // Sempre retorna sucesso no frontend para evitar revelar existência de emails
+    return {
+      success: true, 
+      message: data.message || 'If an account with this email exists, a password reset link has been sent.'
+    };
+
+  } catch (error) {
+    console.error('[SA requestPasswordResetAction] Exception:', error);
+    // Retornar um erro genérico em caso de falha de conexão
+    return {
+      success: false,
+      message: 'An error occurred while requesting the password reset. Please try again later.'
+    };
+  }
+}
+
+/**
+ * Verifica a validade de um token de redefinição de senha.
+ */
+export async function verifyResetTokenAction(token: string): Promise<{ success: boolean; message?: string }> {
+  console.log(`[SA verifyResetTokenAction] Verifying token: ${token ? token.substring(0, 5) + '...' : 'null'}`);
+  if (!token) {
+      return { success: false, message: 'Reset token is missing.' };
+  }
+  try {
+    const response = await fetch(`${API_URL}/api/auth/verify-reset-token?token=${encodeURIComponent(token)}`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(`[SA verifyResetTokenAction] Verification failed: ${data.message}`);
+      return { success: false, message: data.message || 'Invalid or expired token.' };
+    }
+
+    console.log(`[SA verifyResetTokenAction] Token verified successfully.`);
+    return { success: true };
+
+  } catch (error) {
+    console.error('[SA verifyResetTokenAction] Exception:', error);
+    return { success: false, message: 'An error occurred while verifying the token.' };
+  }
+}
+
+/**
+ * Redefine a senha usando um token válido.
+ */
+export async function resetPasswordAction(token: string, password: string): Promise<{ success: boolean; message: string }> {
+   console.log(`[SA resetPasswordAction] Attempting password reset with token: ${token ? token.substring(0, 5) + '...' : 'null'}`);
+   if (!token || !password) {
+       return { success: false, message: 'Token and password are required.' };
+   }
+  try {
+    const response = await fetch(`${API_URL}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password }),
+      cache: 'no-store',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(`[SA resetPasswordAction] Reset failed: ${data.message}`);
+      return { success: false, message: data.message || 'Failed to reset password.' };
+    }
+
+    console.log(`[SA resetPasswordAction] Password reset successful.`);
+    return { success: true, message: data.message || 'Password has been reset successfully.' };
+
+  } catch (error) {
+    console.error('[SA resetPasswordAction] Exception:', error);
+    return { success: false, message: 'An error occurred while resetting the password.' };
+  }
 } 

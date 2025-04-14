@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Metadata } from "next"
+import { requestPasswordResetAction } from "@/app/actions/auth"
 
 const formSchema = z.object({
   email: z.string().email({
@@ -35,16 +36,24 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
     setMessage(null)
 
-    // TODO: Implementar a recuperação de senha
-    // Simulando um request para recuperação de senha
-    setTimeout(() => {
-      setIsLoading(false)
-      setMessage({
-        type: 'success',
-        text: 'Se este email estiver cadastrado, enviaremos instruções para recuperar sua senha.'
-      })
-      form.reset()
-    }, 1500)
+    try {
+      const result = await requestPasswordResetAction(values.email);
+      setMessage({ 
+        type: result.success ? 'success' : 'error', 
+        text: result.message 
+      });
+      if (result.success) {
+        form.reset(); // Clear the form on success
+      }
+    } catch (error) { // Catch unexpected errors during the action call itself
+       console.error("Forgot password submit error:", error);
+       setMessage({ 
+         type: 'error', 
+         text: 'Ocorreu um erro inesperado. Tente novamente mais tarde.' 
+       });
+    } finally {
+       setIsLoading(false);
+    }
   }
 
   return (

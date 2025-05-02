@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
       }
     } catch (error) { // Catch unexpected errors during the action call itself
        console.error("Forgot password submit error:", error);
-       setMessage({ 
+      setMessage({
          type: 'error', 
          text: 'Ocorreu um erro inesperado. Tente novamente mais tarde.' 
        });

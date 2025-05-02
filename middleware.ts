@@ -11,7 +11,7 @@ const roleRoutes = {
   influencer: ['/dashboard/influenciador', '/minhas-vendas', '/minhas-comissoes'],
 };
 
-const publicPaths = ['/login', '/forgot-password', '/reset-password'];
+const publicPaths = ['/login', '/forgot-password'];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('token');

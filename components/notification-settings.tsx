@@ -14,6 +14,7 @@ interface NotificationSettingsProps {
     welcome: boolean;
     report: boolean;
     reminder: boolean;
+    sales?: boolean;
   };
   onSave: (influencerId: string, settings: any) => void;
   onClose: () => void;
@@ -24,6 +25,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
     welcome: initialSettings.welcome,
     report: initialSettings.report,
     reminder: initialSettings.reminder,
+    sales: initialSettings.sales !== undefined ? initialSettings.sales : true,
     reportFrequency: "weekly",
     reminderThreshold: "3days",
   })
@@ -38,6 +40,9 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
         welcome: settings.welcome,
         report: settings.report,
         reminder: settings.reminder,
+        sales: settings.sales,
+        reportFrequency: settings.reportFrequency,
+        reminderThreshold: settings.reminderThreshold,
       })
     }, 1000)
   }
@@ -169,6 +174,35 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
                     Incentiva o influencer a divulgar seu cupom para aumentar as vendas
                   </p>
                 </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Notificações de Venda */}
+        <div className="flex items-start space-x-4 p-4 rounded-lg bg-green-50 border border-green-100">
+          <div className="mt-0.5">
+            <div className="bg-green-100 p-2 rounded-full">
+              <Check className="h-5 w-5 text-green-600" />
+            </div>
+          </div>
+          <div className="flex-1 space-y-1">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-green-900">Notificações de Venda</h4>
+                <p className="text-sm text-green-700">Enviadas em tempo real quando ocorrer uma venda</p>
+              </div>
+              <Switch
+                checked={settings.sales}
+                onCheckedChange={(checked) => setSettings({ ...settings, sales: checked })}
+              />
+            </div>
+            {settings.sales && (
+              <div className="mt-3 text-xs text-green-600 bg-green-100/50 p-2 rounded">
+                <p>
+                  <Check className="inline-block h-3 w-3 mr-1" />
+                  O influencer será notificado imediatamente quando uma venda for registrada usando seu cupom
+                </p>
               </div>
             )}
           </div>

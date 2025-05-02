@@ -276,7 +276,7 @@ export async function isAuthenticated(): Promise<boolean> {
 export async function getUserRole(): Promise<string | null> {
   const user = await getCurrentUser();
   return user?.role || null;
-}
+} 
 
 // --- Password Reset Actions --- 
 

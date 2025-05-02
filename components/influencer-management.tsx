@@ -78,14 +78,13 @@ const formSchema = z.object({
 })
 
 // Dados de fallback para testes e desenvolvimento
-const fallbackInfluencers = [
+const fallbackInfluencers: InfluencerWithNotifications[] = [
   {
     id: "1",
     name: "Ana Silva",
     email: "ana@example.com",
     phone: "(11) 98765-4321",
     instagram: "@anasilva",
-    coupon: "ANA10",
     status: "Ativo",
     sales: 12500,
     commission: 1250,
@@ -94,6 +93,7 @@ const fallbackInfluencers = [
       welcome: true,
       report: true,
       reminder: true,
+      sales: true,
     },
   },
   {
@@ -102,7 +102,6 @@ const fallbackInfluencers = [
     email: "bruno@example.com",
     phone: "(21) 98765-4321",
     instagram: "@brunocosta",
-    coupon: "BRUNO15",
     status: "Ativo",
     sales: 10800,
     commission: 1080,
@@ -111,6 +110,7 @@ const fallbackInfluencers = [
       welcome: true,
       report: true,
       reminder: false,
+      sales: true,
     },
   },
   {
@@ -119,7 +119,6 @@ const fallbackInfluencers = [
     email: "carla@example.com",
     phone: "(31) 98765-4321",
     instagram: "@carlamendes",
-    coupon: "CARLA20",
     status: "Ativo",
     sales: 9200,
     commission: 920,
@@ -128,6 +127,7 @@ const fallbackInfluencers = [
       welcome: true,
       report: false,
       reminder: false,
+      sales: true,
     },
   },
   {
@@ -136,7 +136,6 @@ const fallbackInfluencers = [
     email: "diego@example.com",
     phone: "(41) 98765-4321",
     instagram: "@diegosantos",
-    coupon: "DIEGO25",
     status: "Inativo",
     sales: 8500,
     commission: 850,
@@ -145,6 +144,7 @@ const fallbackInfluencers = [
       welcome: false,
       report: false,
       reminder: false,
+      sales: false,
     },
   },
 ]
@@ -155,6 +155,7 @@ interface InfluencerWithNotifications extends InfluencerData {
     welcome: boolean;
     report: boolean;
     reminder: boolean;
+    sales: boolean;
   };
 }
 
@@ -269,11 +270,13 @@ export function InfluencerManagement() {
           name: values.name,
           email: values.email,
           whatsappNumber: values.phone,
+          instagram: values.instagram,
         }); 
         const result = await createInfluencer({
           name: values.name,
           email: values.email,
-          whatsappNumber: values.phone, 
+          whatsappNumber: values.phone,
+          instagram: values.instagram, 
         })
 
         if (result.success && result.influencer) {
@@ -771,7 +774,7 @@ export function InfluencerManagement() {
                         <Input {...field} className="pl-8 border-pink-100" />
                       </div>
                     </FormControl>
-                    <FormMessage />
+                     <FormMessage />
                   </FormItem>
                 )}
               />

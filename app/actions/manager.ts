@@ -141,6 +141,7 @@ export async function createInfluencer(influencerData: {
   name: string;
   email: string;
   whatsappNumber: string;
+  instagram?: string;
 }): Promise<{ success: boolean; message?: string; influencer?: InfluencerData }> {
   console.log("Server Action createInfluencer chamada com:", influencerData);
   try {
@@ -410,6 +411,7 @@ export async function saveInfluencerNotificationSettings(
     welcome?: boolean;
     report?: boolean;
     reminder?: boolean;
+    sales?: boolean;
     reportFrequency?: string;
     reminderThreshold?: string;
   }
@@ -439,17 +441,17 @@ export async function saveInfluencerNotificationSettings(
     if (!response.ok) {
       return {
         success: false,
-        message: data.message || 'Falha ao salvar configurações de notificação',
+        message: data.message || 'Falha ao atualizar notificações',
       };
     }
 
     return {
       success: true,
-      message: 'Configurações salvas com sucesso',
+      message: data.message || 'Notificações atualizadas com sucesso',
       notifications: data.notifications // Retorna as configurações salvas pelo backend
     };
   } catch (error) {
-    console.error('Erro ao salvar configurações de notificação:', error);
+    console.error('Erro ao atualizar notificações:', error);
     return {
       success: false,
       message: 'Erro ao conectar com o servidor',

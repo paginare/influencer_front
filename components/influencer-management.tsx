@@ -696,7 +696,7 @@ export function InfluencerManagement() {
       </AlertDialog>
 
       <Dialog open={notificationDialogOpen} onOpenChange={setNotificationDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-xl max-h-[80vh] overflow-hidden w-[95vw] sm:w-full">
           <DialogHeader>
             <DialogTitle>Configurações de Notificação</DialogTitle>
             <DialogDescription>

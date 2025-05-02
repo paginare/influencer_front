@@ -48,10 +48,10 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
   }
 
   return (
-    <div className="space-y-6 py-4">
-      <div className="space-y-4">
+    <div className="space-y-4 py-2">
+      <div className="space-y-3 max-h-[calc(80vh-10rem)] overflow-y-auto pr-2">
         {/* Boas-vindas */}
-        <div className="flex items-start space-x-4 p-4 rounded-lg bg-pink-50 border border-pink-100">
+        <div className="flex items-start space-x-4 p-3 rounded-lg bg-pink-50 border border-pink-100">
           <div className="mt-0.5">
             <div className="bg-pink-100 p-2 rounded-full">
               <MessageSquare className="h-5 w-5 text-pink-600" />
@@ -69,7 +69,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
               />
             </div>
             {settings.welcome && (
-              <div className="mt-3 text-xs text-pink-600 bg-pink-100/50 p-2 rounded">
+              <div className="mt-2 text-xs text-pink-600 bg-pink-100/50 p-1.5 rounded">
                 <p>
                   <Check className="inline-block h-3 w-3 mr-1" />
                   Será enviada uma única vez quando o influencer for cadastrado
@@ -80,7 +80,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
         </div>
 
         {/* Relatório */}
-        <div className="flex items-start space-x-4 p-4 rounded-lg bg-blue-50 border border-blue-100">
+        <div className="flex items-start space-x-4 p-3 rounded-lg bg-blue-50 border border-blue-100">
           <div className="mt-0.5">
             <div className="bg-blue-100 p-2 rounded-full">
               <Calendar className="h-5 w-5 text-blue-600" />
@@ -98,7 +98,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
               />
             </div>
             {settings.report && (
-              <div className="mt-3 grid gap-3">
+              <div className="mt-2 grid gap-2">
                 <div className="grid grid-cols-2 items-center gap-2">
                   <Label htmlFor="report-frequency" className="text-sm text-blue-700">
                     Frequência de envio:
@@ -118,7 +118,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="text-xs text-blue-600 bg-blue-100/50 p-2 rounded">
+                <div className="text-xs text-blue-600 bg-blue-100/50 p-1.5 rounded">
                   <p>
                     <Check className="inline-block h-3 w-3 mr-1" />
                     Inclui dados de vendas, comissões e comparativo com períodos anteriores
@@ -130,7 +130,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
         </div>
 
         {/* Lembretes */}
-        <div className="flex items-start space-x-4 p-4 rounded-lg bg-amber-50 border border-amber-100">
+        <div className="flex items-start space-x-4 p-3 rounded-lg bg-amber-50 border border-amber-100">
           <div className="mt-0.5">
             <div className="bg-amber-100 p-2 rounded-full">
               <AlertTriangle className="h-5 w-5 text-amber-600" />
@@ -148,7 +148,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
               />
             </div>
             {settings.reminder && (
-              <div className="mt-3 grid gap-3">
+              <div className="mt-2 grid gap-2">
                 <div className="grid grid-cols-2 items-center gap-2">
                   <Label htmlFor="reminder-threshold" className="text-sm text-amber-700">
                     Enviar após:
@@ -168,7 +168,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="text-xs text-amber-600 bg-amber-100/50 p-2 rounded">
+                <div className="text-xs text-amber-600 bg-amber-100/50 p-1.5 rounded">
                   <p>
                     <Check className="inline-block h-3 w-3 mr-1" />
                     Incentiva o influencer a divulgar seu cupom para aumentar as vendas
@@ -180,7 +180,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
         </div>
 
         {/* Notificações de Venda */}
-        <div className="flex items-start space-x-4 p-4 rounded-lg bg-green-50 border border-green-100">
+        <div className="flex items-start space-x-4 p-3 rounded-lg bg-green-50 border border-green-100">
           <div className="mt-0.5">
             <div className="bg-green-100 p-2 rounded-full">
               <Check className="h-5 w-5 text-green-600" />
@@ -198,7 +198,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
               />
             </div>
             {settings.sales && (
-              <div className="mt-3 text-xs text-green-600 bg-green-100/50 p-2 rounded">
+              <div className="mt-2 text-xs text-green-600 bg-green-100/50 p-1.5 rounded">
                 <p>
                   <Check className="inline-block h-3 w-3 mr-1" />
                   O influencer será notificado imediatamente quando uma venda for registrada usando seu cupom
@@ -209,7 +209,7 @@ export function NotificationSettings({ influencerId, initialSettings, onSave, on
         </div>
       </div>
 
-      <DialogFooter>
+      <DialogFooter className="pt-4 border-t mt-2">
         <Button variant="outline" onClick={onClose}>
           Cancelar
         </Button>
